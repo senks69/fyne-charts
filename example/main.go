@@ -1,7 +1,8 @@
 package main
 
 import (
-	"math/rand"
+	"fmt"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -12,18 +13,35 @@ import (
 
 func main() {
 	a := app.New()
-	w := a.NewWindow("Advanced Chart Example")
+	w := a.NewWindow("Chart Example")
 
-	c := chart.New([]float64{0.1, 0.4, 0.9, 0.2, 0.7})
-	c.XLabels = []string{"Jan", "Feb", "Mar", "Apr", "May"}
+	c := chart.NewBarChart([]float64{})
+	c.XLabels = []string{}
+	var startTime time.Time
+	var endTime time.Duration
+	isRunning := false
+	var timeButton *widget.Button
+	timeButton = widget.NewButton(
+		"Start",
+		func() {
+			if isRunning {
+				endTime = time.Since(startTime)
+				c.AddValue(endTime.Seconds())
+				fmt.Println(endTime.Seconds())
+				timeButton.SetText("Start")
+				isRunning = false
+			} else {
+				startTime = time.Now()
+				timeButton.SetText("Stop")
+				isRunning = true
 
+			}
+		},
+	)
 	w.SetContent(
 		container.NewVBox(
 			c,
-			widget.NewButton("Add Point", func() {
-				c.Points = append(c.Points, rand.Float64())
-				c.Refresh()
-			}),
+			timeButton,
 		),
 	)
 

@@ -2,6 +2,7 @@ package chart
 
 import (
 	"image/color"
+	"math"
 	"strconv"
 
 	"fyne.io/fyne/v2"
@@ -17,7 +18,7 @@ type Chart struct {
 	LineColor color.Color
 }
 
-func New(points []float64) *Chart {
+func NewChart(points []float64) *Chart {
 	c := &Chart{
 		Points:    points,
 		YSteps:    5,
@@ -25,6 +26,12 @@ func New(points []float64) *Chart {
 	}
 	c.ExtendBaseWidget(c)
 	return c
+}
+
+func (c *Chart) AddValue(value float64) {
+	c.Points = append(c.Points, value)
+	c.YSteps = int(math.Ceil(value / 0.2))
+	c.Refresh()
 }
 
 func (c *Chart) CreateRenderer() fyne.WidgetRenderer {
