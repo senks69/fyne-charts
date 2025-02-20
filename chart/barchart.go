@@ -115,12 +115,22 @@ func (r *BarChartRenderer) drawBars(size fyne.Size) {
 		return
 	}
 
+	maxValue := 0.0
+	for _, val := range r.chart.Points {
+		if val > maxValue {
+			maxValue = val
+		}
+	}
+	if maxValue == 0 {
+		return
+	}
+
 	barWidth := size.Width / float32(len(r.chart.Points)) * 0.8
 	spacing := size.Width / float32(len(r.chart.Points)) * 0.1
 
 	for i, val := range r.chart.Points {
 		x := float32(i)*(barWidth+spacing) + spacing
-		height := float32(val) * size.Height
+		height := float32(val / maxValue) * size.Height
 
 		bar := canvas.NewRectangle(r.chart.BarColor)
 		bar.Resize(fyne.NewSize(barWidth, height))
@@ -128,11 +138,18 @@ func (r *BarChartRenderer) drawBars(size fyne.Size) {
 
 		label := canvas.NewText(strconv.FormatFloat(val, 'f', 2, 64), color.Black)
 		label.TextSize = 10
-		label.Move(fyne.NewPos(x+barWidth/2-10, size.Height-height-15))
+
+		labelY := size.Height - height - 15
+		if labelY < 5 {
+			labelY = 5
+		}
+		label.Move(fyne.NewPos(x+barWidth/2-10, labelY))
 
 		r.objects = append(r.objects, bar, label)
 	}
 }
+
+
 
 func (r *BarChartRenderer) MinSize() fyne.Size {
 	return fyne.NewSize(400, 300)
